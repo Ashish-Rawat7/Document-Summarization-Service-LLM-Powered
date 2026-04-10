@@ -2,17 +2,19 @@ import fitz
 import pytesseract
 from PIL import Image
 from docx import Document
+import os
 
-# Explicit Tesseract path (Windows-safe)
-pytesseract.pytesseract.tesseract_cmd = (
-    r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-)
+# Optional OCR path (local only)
+if os.name == "nt":
+    path = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+    if os.path.exists(path):
+        pytesseract.pytesseract.tesseract_cmd = path
 
 
 def clean_text(text: str) -> str:
-    lines = [l.strip() for l in text.splitlines()]
-    lines = [l for l in lines if len(l) > 3]
-    return "\n".join(lines)
+    return "\n".join(
+        line.strip() for line in text.splitlines() if len(line.strip()) > 3
+    )
 
 
 def load_pdf(data: bytes) -> str:
@@ -21,20 +23,23 @@ def load_pdf(data: bytes) -> str:
 
     for page in doc:
         text = page.get_text().strip()
+
         if text:
             extracted.append(text)
         else:
-            pix = page.get_pixmap(dpi=300)
-            img = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
-            extracted.append(
-                pytesseract.image_to_string(img, config="--oem 3 --psm 6")
-            )
+            try:
+                pix = page.get_pixmap(dpi=300)
+                img = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
+                extracted.append(pytesseract.image_to_string(img))
+            except:
+                pass
 
     doc.close()
+
     final = clean_text("\n".join(extracted))
 
     if not final:
-        raise ValueError("Unable to extract text from PDF")
+        raise ValueError("No extractable text found")
 
     return final
 

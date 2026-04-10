@@ -1,9 +1,44 @@
 # Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 
-# Environment variables
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+
+# Environment Variables
 .env
+.env.*
 
-# Streamlit secrets
+# Streamlit
 .streamlit/secrets.toml
+
+# Logs & Temp Files
+*.log
+*.tmp
+
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor
+.vscode/
+.idea/
+
+
+# Build / Cache
+.cache/
+*.sqlite3
+*.db
+
+
+# Uploaded / Generated Files (IMPORTANT for your project)
+data/
+uploads/
+outputs/
